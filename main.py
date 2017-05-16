@@ -1,14 +1,30 @@
+#coding=utf-8
 from __future__ import division
 from numpy import *
 import operator
-
+import re
 
 def createDataset():
+    i = 0
+    data = []
+    dataSet = []
+    i=0
+    j=4
     file = open("titanic.dat", "r")
     for line in file.readlines()[8:]:
-        pass
+        data =  re.split(',|', line)
+        #remove '\r \n' in list
+        data = map(lambda x: x.strip(), data)
+        dataSet.append(data)
+        i = i + 1
+    print dataSet
+    for k in range(i):
 
-
+        dataSet[k][0] = float(dataSet[k][0])/(0.965 + 1.87)
+        dataSet[k][1] = float(dataSet[k][1])/(4.38 + 0.228)
+        dataSet[k][2] = float(dataSet[k][2])/(0.521 + 1.92)
+    print "归一化："
+    print dataSet
 
 def classify(inX, dataSet, labels, k):
     dataSetSize = dataSet.shape[0]
