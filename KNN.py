@@ -1,6 +1,7 @@
 #coding=utf-8
 from __future__ import division
 from numpy import *
+import time
 import math
 import re
 
@@ -45,6 +46,7 @@ def caculateDiff(trainDataSet, testDataSet, k):
     print "测试数据:"
     print testDataSet
     diffArray = []
+
     for testData in testDataSet:
         count  = count + 1
         print count
@@ -75,15 +77,18 @@ def caculateDiff(trainDataSet, testDataSet, k):
 
 
 def result():
+    t0 = time.clock()
     trainDataSet, testDataSet = createDataset()
     print "finish to create dataSet"
     print "Please input K:"
     k = raw_input()
     print "begin..."
     successRate = caculateDiff(trainDataSet, testDataSet, int(k))
+    print "历时:" + str(round(time.clock() - t0, 3)) + "秒"
     print "finish"
     print "预测成功率为："
     print successRate
+
 
 
 if __name__ == '__main__':

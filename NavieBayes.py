@@ -2,7 +2,7 @@
 from __future__ import division
 import numpy as np
 import re
-
+import time
 
 def computeEntropy(x, y):
     if x == 0 or y == 0:
@@ -125,7 +125,7 @@ def createDataset():
     gain = EntropyS - Entropy[0][1]
     print "最大信息增益为"+str(gain)+", 此时节点值为："+str(Entropy[0][0])
 
-    # 离散化数据并生成训练集和测试集
+    # 根据阈值离散化数据并生成训练集和测试集
     trainDataSet = []
     testDataSet = []
     for i in range(2200):
@@ -166,11 +166,75 @@ def createDataset():
     return trainDataSet, testDataSet
 
 
+def navieBayes(trainDataSet, testDataset):
+
+    # 一共有两个类别， 1 and -1, 先统计trainDataSet 中1和-1的数量
+    countTrueVal = 0
+    countFalseVal = 0
+    trainDataSetlen = len(trainDataSet)
+    countID = 0
+    for trainData in trainDataSet:
+        if trainData[3] == 1.0:
+            countTrueVal += 1
+        elif trainData[3] == -1.0:
+            countFalseVal += 1
+    countForcast = 0
+
+    for testData in testDataset:
+        countClassTrue = 0
+        countClassFalse = 0
+        countAgeTrue = 0
+        countAgeFalse = 0
+        countSexTrue = 0
+        countSexFalse = 0
+        countID += 1
+        for trainData in trainDataSet:
+            if trainData[3] == 1.0:
+                if trainData[0] == testData[0]:
+                    countClassTrue += 1
+                if trainData[1] == testData[1]:
+                    countAgeTrue += 1
+                if trainData[2] == trainData[2]:
+                    countSexTrue += 1
+            elif trainData[3] == -1.0:
+                if trainData[0] == testData[0]:
+                    countClassFalse += 1
+                if trainData[1] == testData[1]:
+                    countAgeFalse += 1
+                if trainData[2] == trainData[2]:
+                    countSexFalse += 1
+        PTrue = (countClassTrue / countTrueVal) * (countAgeTrue / countTrueVal) * (countSexTrue / countTrueVal) * \
+                (countTrueVal / trainDataSetlen)
+        PFalse = (countClassFalse / countFalseVal) * (countAgeFalse / countFalseVal) * \
+                 (countSexFalse / countFalseVal) * (countFalseVal / trainDataSetlen)
+
+        print str(countID) + ":\t类标为1的后验概率为:" + str(round(PTrue, 2)) + \
+              "\t类标为-1的后验概率为:" + str(round(PFalse, 2))
+        if PTrue >= PFalse:
+            if testData[3] == 1.0:
+                print str(testData) + "预测类标为:1, 预测正确"
+                countForcast += 1
+            else:
+                print str(testData) + "预测类标为:1, 预测错误"
+        else:
+            if testData[3] == -1.0:
+                print str(testData) + "预测类标为:-1, 预测正确"
+                countForcast += 1
+            else:
+                print str(testData) + "预测类标为:-1, 预测错误"
+        print '\n'
+    print "训练完成，预测准确率为:" + str(countForcast / len(testDataset))
+
+    return (countForcast / len(testDataset))
+
+
 def result():
+    t0 = time.clock()
     trainDataSet, testDataSet = createDataset()
     print "finish to create dataSet"
     print "begin..."
-    successRate = 0
+    successRate = navieBayes(trainDataSet, testDataSet)
+    print "历时:" + str(round(time.clock() - t0, 3))+"秒"
     print "finish"
     print "预测成功率为："
     print successRate
