@@ -194,14 +194,14 @@ def navieBayes(trainDataSet, testDataset):
                     countClassTrue += 1
                 if trainData[1] == testData[1]:
                     countAgeTrue += 1
-                if trainData[2] == trainData[2]:
+                if trainData[2] == testData[2]:
                     countSexTrue += 1
             elif trainData[3] == -1.0:
                 if trainData[0] == testData[0]:
                     countClassFalse += 1
                 if trainData[1] == testData[1]:
                     countAgeFalse += 1
-                if trainData[2] == trainData[2]:
+                if trainData[2] == testData[2]:
                     countSexFalse += 1
         PTrue = (countClassTrue / countTrueVal) * (countAgeTrue / countTrueVal) * (countSexTrue / countTrueVal) * \
                 (countTrueVal / trainDataSetlen)
