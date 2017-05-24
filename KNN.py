@@ -1,7 +1,6 @@
 #coding=utf-8
 from __future__ import division
 from numpy import *
-import operator
 import math
 import re
 
@@ -16,6 +15,7 @@ def createDataset():
         data = map(lambda x: x.strip(), data)
         dataSet.append(data)
     #print dataSet
+    file.close()
     for k in range(1400):
         dataSet[k][0] = (float(dataSet[k][0]) + 1.87)/(0.965 + 1.87)
         dataSet[k][1] = (float(dataSet[k][1]) + 0.228)/(4.38 + 0.228)
@@ -29,7 +29,7 @@ def createDataset():
         dataSet[k][3] = float(dataSet[k][3])
         testDataSet.append(dataSet[k])
     #print "train："
-    file.close()
+
     print "训练数据:"
     print trainDataSet
     print "测试数据:"
@@ -68,6 +68,7 @@ def caculateDiff(trainDataSet, testDataSet, k):
         else:
             if testData[3] == -1.0:
                 success = success + 1
+    print "K值:" + str(k)
     print "测试数据共:"+ str(count) + "个"
     print "预测成功数据：" + str(success) + "个"
     return float(success) / float(count)
