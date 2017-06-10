@@ -182,19 +182,20 @@ class BPNeuralNetwork:
     def test(self):
         trainDataSet, trainDataSetLabel, testDataSet, testDataSetLabel = createDataset()
         print "testData:" + str(testDataSet)
-        self.setup(2, 5, 1)
+        self.setup(3, 4, 1)
         t0 = time.clock()
         print "训练中..."
-        self.train(trainDataSet, trainDataSetLabel, 10000, 0.05, 0.1)
+        self.train(trainDataSet, trainDataSetLabel, 50000, 0.05, 0.1)
         print "训练完成, 耗时:"  + str(round(time.clock() - t0, 3)) + "秒"
         count = 0
         for i in range(len(testDataSet)):
             label = (self.predict(testDataSet[i]))
             print "预测结果:"+ str(label)
             print "标签:" + str(testDataSetLabel[i][0])
-            if testDataSetLabel[i][0] - label[0] < 0.01 and testDataSetLabel[i][0] - label[0] > -0.01:
+            if testDataSetLabel[i][0] - label[0] < 0.1 and testDataSetLabel[i][0] - label[0] > -0.1:
                 count += 1
         print "正确率:" + str(round(count/len(testDataSet), 3))
+
 
 if __name__ == '__main__':
 
