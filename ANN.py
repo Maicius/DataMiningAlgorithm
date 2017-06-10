@@ -1,3 +1,4 @@
+#coding=utf-8
 import math
 import random
 
@@ -74,6 +75,7 @@ class BPNeuralNetwork:
             for j in range(self.hidden_n):
                 total += self.hidden_cells[j] * self.output_weights[j][k]
             self.output_cells[k] = sigmoid(total)
+        print "output_cells:" + str(self.output_cells[:])
         return self.output_cells[:]
 
     def back_propagate(self, case, label, learn, correct):
@@ -91,6 +93,7 @@ class BPNeuralNetwork:
             for o in range(self.output_n):
                 error += output_deltas[o] * self.output_weights[h][o]
             hidden_deltas[h] = sigmoid_derivative(self.hidden_cells[h]) * error
+
         # update output weights
         for h in range(self.hidden_n):
             for o in range(self.output_n):
@@ -107,6 +110,7 @@ class BPNeuralNetwork:
         error = 0.0
         for o in range(len(label)):
             error += 0.5 * (label[o] - self.output_cells[o]) ** 2
+        print "error:" + str(error)
         return error
 
     def train(self, cases, labels, limit=10000, learn=0.05, correct=0.1):
@@ -124,11 +128,11 @@ class BPNeuralNetwork:
             [1, 0],
             [1, 1],
         ]
-        labels = [[0], [1], [1], [0]]
+        labels = [[0], [1], [0], [1]]
         self.setup(2, 5, 1)
         self.train(cases, labels, 10000, 0.05, 0.1)
         for case in cases:
-            print(self.predict(case))
+            print "预测结果:" + str(self.predict(case))
 
 
 if __name__ == '__main__':
