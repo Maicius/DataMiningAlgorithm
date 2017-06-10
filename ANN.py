@@ -1,7 +1,8 @@
 #coding=utf-8
 import math
 import random
-
+import re
+import time
 random.seed(0)
 
 
@@ -23,6 +24,61 @@ def sigmoid(x):
 def sigmoid_derivative(x):
     return x * (1 - x)
 
+def createDataset():
+    dataSet = []
+    trainDataSet = []
+    trainDataSetLabel = []
+    testDataSet = []
+    testDataSetLabel = []
+    file = open("titanic.dat", "r")
+    for line in file.readlines()[8:]:
+        data =  re.split(',|', line)
+        #remove '\r \n' in list
+        data = map(lambda x: x.strip(), data)
+        dataSet.append(data)
+    #print dataSet
+    file.close()
+    for k in range(1400):
+        trainData = []
+        trainDataLabel = []
+        dataSet[k][0] = (float(dataSet[k][0]) + 1.87)/(0.965 + 1.87)
+        dataSet[k][1] = (float(dataSet[k][1]) + 0.228)/(4.38 + 0.228)
+        dataSet[k][2] = (float(dataSet[k][2]) + 1.92)/(0.521 + 1.92)
+        trainData.append(dataSet[k][0])
+        trainData.append(dataSet[k][1])
+        trainData.append(dataSet[k][2])
+        trainDataSet.append(trainData)
+        dataSet[k][3] = float(dataSet[k][3]) if float(dataSet[k][3]) > 0 else 0
+        trainDataLabel.append(dataSet[k][3])
+        trainDataSetLabel.append(trainDataLabel)
+    for k in range(1401, 2200):
+        testData = []
+        testDataLabel = []
+        dataSet[k][0] = (float(dataSet[k][0]) + 1.87) / (0.965 + 1.87)
+        dataSet[k][1] = (float(dataSet[k][1]) + 0.228) / (4.38 + 0.228)
+        dataSet[k][2] = (float(dataSet[k][2]) + 1.92) / (0.521 + 1.92)
+        dataSet[k][3] = float(dataSet[k][3])
+        testData.append(dataSet[k][0])
+        testData.append(dataSet[k][1])
+        testData.append(dataSet[k][2])
+        testDataSet.append(testData)
+        dataSet[k][3] = float(dataSet[k][3]) if float(dataSet[k][3]) > 0 else 0
+        testDataLabel.append(dataSet[k][3])
+        testDataSetLabel.append(testDataLabel)
+    print "train："
+
+    print "训练数据:"
+    print trainDataSet
+
+    print "训练数据标签:"
+    print trainDataSetLabel
+
+    print "测试数据:"
+    print testDataSet
+
+    print "测试数据标签:"
+    print testDataSetLabel
+    return trainDataSet, trainDataSetLabel, testDataSet, testDataSetLabel
 
 class BPNeuralNetwork:
     def __init__(self):
@@ -75,13 +131,14 @@ class BPNeuralNetwork:
             for j in range(self.hidden_n):
                 total += self.hidden_cells[j] * self.output_weights[j][k]
             self.output_cells[k] = sigmoid(total)
-        print "output_cells:" + str(self.output_cells[:])
+        # print "output_cells:" + str(self.output_cells[:])
         return self.output_cells[:]
 
     def back_propagate(self, case, label, learn, correct):
         # feed forward
         self.predict(case)
         # get output layer error
+
         output_deltas = [0.0] * self.output_n
         for o in range(self.output_n):
             error = label[o] - self.output_cells[o]
@@ -110,31 +167,36 @@ class BPNeuralNetwork:
         error = 0.0
         for o in range(len(label)):
             error += 0.5 * (label[o] - self.output_cells[o]) ** 2
-        print "error:" + str(error)
+        # print "error:" + str(error)
         return error
 
-    def train(self, cases, labels, limit=10000, learn=0.05, correct=0.1):
+    def train(self, cases, labels, limit=1000, learn=0.05, correct=0.1):
         for j in range(limit):
             error = 0.0
+            print j
             for i in range(len(cases)):
                 label = labels[i]
                 case = cases[i]
                 error += self.back_propagate(case, label, learn, correct)
 
     def test(self):
-        cases = [
-            [0, 0],
-            [0, 1],
-            [1, 0],
-            [1, 1],
-        ]
-        labels = [[0], [1], [0], [1]]
+        trainDataSet, trainDataSetLabel, testDataSet, testDataSetLabel = createDataset()
+        print "testData:" + str(testDataSet)
         self.setup(2, 5, 1)
-        self.train(cases, labels, 10000, 0.05, 0.1)
-        for case in cases:
-            print "预测结果:" + str(self.predict(case))
-
+        t0 = time.clock()
+        print "训练中..."
+        self.train(trainDataSet, trainDataSetLabel, 10000, 0.05, 0.1)
+        print "训练完成, 耗时:"  + str(round(time.clock() - t0, 3)) + "秒"
+        count = 0
+        for i in range(len(testDataSet)):
+            label = (self.predict(testDataSet[i]))
+            print "预测结果:"+ str(label)
+            print "标签:" + str(testDataSetLabel[i][0])
+            if testDataSetLabel[i][0] - label[0] < 0.01 and testDataSetLabel[i][0] - label[0] > -0.01:
+                count += 1
+        print "正确率:" + str(round(count/len(testDataSet), 3))
 
 if __name__ == '__main__':
+
     nn = BPNeuralNetwork()
     nn.test()
