@@ -4,6 +4,7 @@ import numpy as np
 import re
 import time
 
+
 def computeEntropy(x, y):
     if x == 0 or y == 0:
         return 0

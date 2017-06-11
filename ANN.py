@@ -57,12 +57,12 @@ def createDataset():
         dataSet[k][0] = (float(dataSet[k][0]) + 1.87) / (0.965 + 1.87)
         dataSet[k][1] = (float(dataSet[k][1]) + 0.228) / (4.38 + 0.228)
         dataSet[k][2] = (float(dataSet[k][2]) + 1.92) / (0.521 + 1.92)
-        dataSet[k][3] = float(dataSet[k][3])
+        dataSet[k][3] = float(dataSet[k][3]) if float(dataSet[k][3]) > 0 else 0
         testData.append(dataSet[k][0])
         testData.append(dataSet[k][1])
         testData.append(dataSet[k][2])
         testDataSet.append(testData)
-        dataSet[k][3] = float(dataSet[k][3]) if float(dataSet[k][3]) > 0 else 0
+        dataSet[k][3] = float(dataSet[k][3])
         testDataLabel.append(dataSet[k][3])
         testDataSetLabel.append(testDataLabel)
     print "train："
@@ -185,16 +185,19 @@ class BPNeuralNetwork:
         self.setup(3, 4, 1)
         t0 = time.clock()
         print "训练中..."
-        self.train(trainDataSet, trainDataSetLabel, 50000, 0.05, 0.1)
+        self.train(trainDataSet, trainDataSetLabel, 10000, 0.05, 0.1)
         print "训练完成, 耗时:"  + str(round(time.clock() - t0, 3)) + "秒"
         count = 0
         for i in range(len(testDataSet)):
             label = (self.predict(testDataSet[i]))
+            print "结果:" + str(label)
+            label[0] = 1 if label[0] >= 0.5 else 0
             print "预测结果:"+ str(label)
             print "标签:" + str(testDataSetLabel[i][0])
-            if testDataSetLabel[i][0] - label[0] < 0.1 and testDataSetLabel[i][0] - label[0] > -0.1:
+            if testDataSetLabel[i][0] == label[0]:
                 count += 1
-        print "正确率:" + str(round(count/len(testDataSet), 3))
+        print "预测成功：" + str(count)
+        print "正确率:" + str(round(float(count)/float(len(testDataSet)), 3))
 
 
 if __name__ == '__main__':
