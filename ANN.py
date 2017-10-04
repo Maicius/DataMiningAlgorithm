@@ -24,6 +24,7 @@ def sigmoid(x):
 def sigmoid_derivative(x):
     return x * (1 - x)
 
+
 def createDataset():
     dataSet = []
     trainDataSet = []
@@ -57,7 +58,7 @@ def createDataset():
         dataSet[k][0] = (float(dataSet[k][0]) + 1.87) / (0.965 + 1.87)
         dataSet[k][1] = (float(dataSet[k][1]) + 0.228) / (4.38 + 0.228)
         dataSet[k][2] = (float(dataSet[k][2]) + 1.92) / (0.521 + 1.92)
-        dataSet[k][3] = float(dataSet[k][3]) if float(dataSet[k][3]) > 0 else 0
+        dataSet[k][3] = float(dataSet[k][3]) if float(dataSet[k][3]) > 0 else -1
         testData.append(dataSet[k][0])
         testData.append(dataSet[k][1])
         testData.append(dataSet[k][2])
@@ -79,6 +80,7 @@ def createDataset():
     print "测试数据标签:"
     print testDataSetLabel
     return trainDataSet, trainDataSetLabel, testDataSet, testDataSetLabel
+
 
 class BPNeuralNetwork:
     def __init__(self):
@@ -170,6 +172,64 @@ class BPNeuralNetwork:
         # print "error:" + str(error)
         return error
 
+    def gradAscentPredict(self, inputs):
+        # activate input layer
+        for i in range(self.input_n - 1):
+            self.input_cells[i] = inputs[i]
+        # activate hidden layer
+        for j in range(self.hidden_n):
+            total = 0.0
+            for i in range(self.input_n):
+                total += self.input_cells[i] * self.input_weights[i][j]
+            self.hidden_cells[j] = sigmoid(total)
+        # activate output layer
+        for k in range(self.output_n):
+            total = 0.0
+            for j in range(self.hidden_n):
+                total += self.hidden_cells[j] * self.output_weights[j][k]
+            self.output_cells[k] = sigmoid(total)
+        # print "output_cells:" + str(self.output_cells[:])
+        return self.output_cells[:]
+
+    def getGloabError(self, label):
+        # get global error
+        error = 0.0
+        for o in range(len(label)):
+            error += 0.5 * (label[o] - self.output_cells[o]) ** 2
+        print "error:" + str(error)
+        return error/len(label)
+
+    def gradAscentBack_propagate(self, case, label, learn, correct):
+        # feed forward
+        self.gradAscentPredict(case)
+        # get output layer error
+
+        output_deltas = [0.0] * self.output_n
+        for o in range(self.output_n):
+            error = self.getGloabError(label)
+            output_deltas[o] = sigmoid_derivative(self.output_cells[o]) * error
+        # get hidden layer error
+        hidden_deltas = [0.0] * self.hidden_n
+        for h in range(self.hidden_n):
+            error = 0.0
+            for o in range(self.output_n):
+                error += output_deltas[o] * self.output_weights[h][o]
+            hidden_deltas[h] = sigmoid_derivative(self.hidden_cells[h]) * error
+
+        # update output weights
+        for h in range(self.hidden_n):
+            for o in range(self.output_n):
+                change = output_deltas[o] * self.hidden_cells[h]
+                self.output_weights[h][o] += learn * change + correct * self.output_correction[h][o]
+                self.output_correction[h][o] = change
+        # update input weights
+        for i in range(self.input_n):
+            for h in range(self.hidden_n):
+                change = hidden_deltas[h] * self.input_cells[i]
+                self.input_weights[i][h] += learn * change + correct * self.input_correction[i][h]
+                self.input_correction[i][h] = change
+
+
     def train(self, cases, labels, limit=1000, learn=0.05, correct=0.1):
         for j in range(limit):
             error = 0.0
@@ -177,7 +237,7 @@ class BPNeuralNetwork:
             for i in range(len(cases)):
                 label = labels[i]
                 case = cases[i]
-                error += self.back_propagate(case, label, learn, correct)
+                self.back_propagate(case, label, learn, correct)
 
     def test(self):
         trainDataSet, trainDataSetLabel, testDataSet, testDataSetLabel = createDataset()
@@ -185,19 +245,19 @@ class BPNeuralNetwork:
         self.setup(3, 4, 1)
         t0 = time.clock()
         print "训练中..."
-        self.train(trainDataSet, trainDataSetLabel, 10000, 0.05, 0.1)
+        self.train(trainDataSet, trainDataSetLabel, 1000, 0.05, 0.1)
         print "训练完成, 耗时:"  + str(round(time.clock() - t0, 3)) + "秒"
         count = 0
         for i in range(len(testDataSet)):
             label = (self.predict(testDataSet[i]))
-            print "结果:" + str(label)
-            label[0] = 1 if label[0] >= 0.5 else 0
+            # print "结果:" + str(label)
+            label[0] = 1 if label[0] >= 0.5 else -1
             print "预测结果:"+ str(label)
             print "标签:" + str(testDataSetLabel[i][0])
             if testDataSetLabel[i][0] == label[0]:
                 count += 1
-        print "预测成功：" + str(count)
-        print "正确率:" + str(round(float(count)/float(len(testDataSet)), 3))
+        print "预测成功：" + str(count - 50)
+        print "正确率:" + str(round(float(count-50)/float(len(testDataSet)), 3))
 
 
 if __name__ == '__main__':

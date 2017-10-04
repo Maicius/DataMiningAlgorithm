@@ -89,7 +89,5 @@ def result():
     print "预测成功率为："
     print successRate
 
-
-
 if __name__ == '__main__':
     result()

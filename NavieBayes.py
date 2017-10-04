@@ -206,6 +206,7 @@ def navieBayes(trainDataSet, testDataset):
                     countSexFalse += 1
         PTrue = (countClassTrue / countTrueVal) * (countAgeTrue / countTrueVal) * (countSexTrue / countTrueVal) * \
                 (countTrueVal / trainDataSetlen)
+
         PFalse = (countClassFalse / countFalseVal) * (countAgeFalse / countFalseVal) * \
                  (countSexFalse / countFalseVal) * (countFalseVal / trainDataSetlen)
 
