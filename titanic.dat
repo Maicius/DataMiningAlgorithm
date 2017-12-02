@@ -5,7 +5,7 @@
 @attribute Survived {-1.0,1.0}          
 @inputs Class, Age, Sex
 @outputs Survived
-@data
+@data.
 -1.87,-0.228,0.521,-1.0
 -0.923,-0.228,-1.92,1.0
 -0.923,-0.228,-1.92,1.0

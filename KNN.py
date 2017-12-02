@@ -5,6 +5,10 @@ import time
 import math
 import re
 
+def remove_blank(data):
+    for item in data:
+        item = item.strip()
+    return data
 def createDataset():
     dataSet = []
     trainDataSet = []
